@@ -7,10 +7,26 @@ Class {
 		'msgstrList',
 		'msgstrEditButton',
 		'msgstrRemoveButton',
-		'infoLabel'
+		'infoLabel',
+		'msgidAddButton'
 	],
 	#category : #'PoEditor-Spec2'
 }
+
+{ #category : #'button actions' }
+SpPoEditorFrame >> addNewMsgid [
+
+	| entry ret |
+	ret := UIManager default
+		       request: 'Enter msgid' localized
+		       initialAnswer: ''.
+	ret ifNil: [ ^ self ].
+	ret isEmpty ifTrue: [ ^ self ].
+	(application hasMsgid: ret) ifTrue: [ 
+		^ self inform: 'The msgid is already there.' localized ].
+	entry := PoAbstractEntry msgid: ret.
+	application addEntry: entry
+]
 
 { #category : #private }
 SpPoEditorFrame >> clearMsgstrList [
@@ -21,8 +37,9 @@ SpPoEditorFrame >> clearMsgstrList [
 { #category : #initialization }
 SpPoEditorFrame >> connectPresenters [
 
+	msgidAddButton action: [ self addNewMsgid ].
 	entryList whenSelectionChangedDo: [ :mode | self entrySelected: mode ].
-	msgstrEditButton action: [ self editEntry ].
+	msgstrEditButton action: [ self editMsgstr ].
 	msgstrList whenSelectionChangedDo: [ :mode | self msgstrSelected: mode ]
 ]
 
@@ -40,7 +57,13 @@ SpPoEditorFrame >> defaultLayout [
 	^ SpBoxLayout newVertical
 		  add: #menu withConstraints: [ :c | c height: toolbarHeight ];
 		  add: (SpPanedLayout newHorizontal
-				   add: #entryList;
+				   add: (SpBoxLayout newVertical
+						    add: (SpPanedLayout newHorizontal
+								     add: #msgidAddButton;
+								     yourself)
+						    withConstraints: [ :c | c height: toolbarHeight ];
+						    add: #entryList;
+						    yourself);
 				   add: (SpBoxLayout newVertical
 						    add: (SpPanedLayout newHorizontal
 								     add: #msgstrEditButton;
@@ -55,7 +78,7 @@ SpPoEditorFrame >> defaultLayout [
 ]
 
 { #category : #'button actions' }
-SpPoEditorFrame >> editEntry [
+SpPoEditorFrame >> editMsgstr [
 
 	| entry ret list |
 	entry := entryList selectedItem.
@@ -162,7 +185,7 @@ SpPoEditorFrame >> helpMenu [
 				  action: [ owner window showAbout ] ];
 		  addItem: [ :item | 
 			  item
-				  name: 'Inspect';
+				  name: 'inspect' localized;
 				  action: [ application inspect ] ];
 		  yourself
 ]
@@ -172,6 +195,7 @@ SpPoEditorFrame >> initializePresenters [
 
 	menu := self newMenuBar.
 	entryList := self newTable.
+	msgidAddButton := self newButton.
 	msgstrEditButton := self newButton.
 	msgstrRemoveButton := self newButton.
 	msgstrList := self newList.
@@ -195,7 +219,7 @@ SpPoEditorFrame >> initializeWindow: aWindow [
 	aWindow
 		initialExtent: self defaultExtent;
 		aboutText: application aboutAppString;
-		title: self class name
+		title: application class name
 ]
 
 { #category : #'menu actions' }
@@ -274,12 +298,16 @@ SpPoEditorFrame >> selectEntryIndex: anInteger [
 { #category : #initialization }
 SpPoEditorFrame >> setupButtons [
 
+	msgidAddButton
+		icon: (Smalltalk ui iconNamed: #add);
+		label: 'Add' localized;
+		help: 'Add new msgid' localized.
 	msgstrEditButton
-		icon: (Smalltalk ui iconNamed: #smallOpen);
+		icon: (Smalltalk ui iconNamed: #edit);
 		label: 'Edit' localized;
 		help: 'Edit msgstr' localized.
 	msgstrRemoveButton
-		icon: (Smalltalk ui iconNamed: #smallOpen);
+		icon: (Smalltalk ui iconNamed: #remove);
 		label: 'Remove' localized;
 		help: 'Remove msgstr' localized
 ]
@@ -319,11 +347,11 @@ SpPoEditorFrame >> setupTable [
 		contextMenu: (SpMenuPresenter new
 				 addItem: [ :item | 
 					 item
-						 name: 'delete / undelete';
+						 name: 'delete / undelete' localized;
 						 action: [ self toggleDeleteEntry ] ];
 				 addItem: [ :item | 
 					 item
-						 name: 'inspect';
+						 name: 'inspect' localized;
 						 action: [ self inspectEntry ] ];
 				 yourself)
 ]

@@ -66,7 +66,7 @@ PoTranslator class >> generatePOTFile [
 	"PoTranslator generatePOTFile"
 
 	| file strings |
-	file := FileSystem workingDirectory / 'app.pot'.
+	file := FileSystem workingDirectory / 'PoEditor.pot'.
 	file isFile ifTrue: [ file delete ].
 	strings := Set new.
 	self addLocalizedTextsTo: strings.

@@ -14,7 +14,7 @@ Class {
 { #category : #private }
 PoEditor class >> defaultPoFile [
 
-	^ 'ja.po'
+	^ 'PoEditor.po'
 ]
 
 { #category : #accessing }
@@ -69,6 +69,13 @@ All rights reserved.
 '
 ]
 
+{ #category : #adding }
+PoEditor >> addEntry: aString [
+
+	project addEntry: aString.
+	self updateProject
+]
+
 { #category : #constants }
 PoEditor >> appName [
 
@@ -78,7 +85,7 @@ PoEditor >> appName [
 { #category : #constants }
 PoEditor >> appVersion [
 
-	^ 'v0.0.1'
+	^ '0.0.2'
 ]
 
 { #category : #private }
@@ -89,6 +96,12 @@ PoEditor >> compareEntry: anEntry and: anEntry2 [
 	(anEntry isValid xor: [ anEntry2 isValid ]) ifTrue: [ 
 		^ anEntry2 isValid ].
 	^ anEntry msgid <= anEntry2 msgid
+]
+
+{ #category : #constants }
+PoEditor >> defaultProjectName [
+
+	^ 'New Project'
 ]
 
 { #category : #accessing }
@@ -103,12 +116,18 @@ PoEditor >> extraDirectory: anObject [
 	extraDirectory := anObject
 ]
 
+{ #category : #testing }
+PoEditor >> hasMsgid: aString [
+
+	^ project hasMsgid: aString
+]
+
 { #category : #initialization }
 PoEditor >> initialize [
 
 	super initialize.
 	projectDirectory := extraDirectory := nil.
-	projectName := 'New Project'
+	projectName := self defaultProjectName
 ]
 
 { #category : #private }
@@ -137,7 +156,8 @@ PoEditor >> open [
 PoEditor >> openNewProject [
 
 	self installProject: self newProject.
-	presenter selectEntryIndex: 0
+	presenter selectEntryIndex: 0.
+	projectName := self defaultProjectName
 ]
 
 { #category : #api }
@@ -186,7 +206,7 @@ PoEditor >> openTranslation [
 	file := UIManager default
 		        chooseExistingFileReference:
 		        'Open Translation File ...' localized
-		        extensions: #( self class translationExtension )
+		        extensions: { self class translationExtension }
 		        path: self projectDirectory.
 	file ifNil: [ ^ self ].
 	file isFile ifFalse: [ ^ self ].
@@ -266,7 +286,7 @@ PoEditor >> promptForSavingTranslation [
 	^ UIManager default
 		  chooseForSaveFileReference: 'Save Translation' localized
 		  extensions: { self class translationExtension }
-		  path: self extraDirectory / self class defaultPoFile
+		  path: self extraDirectory / self projectName
 ]
 
 { #category : #api }

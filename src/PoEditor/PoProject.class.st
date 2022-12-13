@@ -69,6 +69,12 @@ PoProject >> entryList [
 	^ entries values
 ]
 
+{ #category : #testing }
+PoProject >> hasMsgid: aString [
+
+	^ entries includesKey: aString
+]
+
 { #category : #initialization }
 PoProject >> initialize [
 
