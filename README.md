@@ -7,16 +7,20 @@
 ## テンプレートファイルを生成する
 
 以下のような形式のテキストファイルを用意する。（msgstrは空文字列で良い）
+
 ```
 msgid "original text"
 msgstr ""
 ```
-テキストファイルは foo.pot というファイル名で保存する。
 
-FromScratchアプリの場合、
+テンプレートファイルは foo.pot という名前で保存しておく。
+
+FromScratchプロジェクトの場合、
+
 ```smalltalk
 ScratchTranslator generatePOTFile.
 ```
+
 を評価してできた app.pot を使うことができる。
 
 ## PoEditor でテンプレートファイルを読み込む
