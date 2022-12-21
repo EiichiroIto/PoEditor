@@ -90,6 +90,44 @@ PoNormalEntryTest >> testEqualsSign [
 ]
 
 { #category : #test }
+PoNormalEntryTest >> testHasValidMsgstr [
+
+	| obj |
+	obj := self newObj.
+	obj msgid: 'abc %n'.
+	obj msgstr: '  '.
+	self deny: obj hasValidMsgstr.
+	obj := self newObj.
+	obj msgid: 'abc'.
+	obj msgstr: 'def'.
+	self assert: obj hasValidMsgstr.
+	obj := self newObj.
+	obj msgid: 'abc %n'.
+	obj msgstr: 'abc %n'.
+	self assert: obj hasValidMsgstr.
+	obj := self newObj.
+	obj msgid: 'abc %n'.
+	obj msgstr: '%n def'.
+	self assert: obj hasValidMsgstr.
+	obj := self newObj.
+	obj msgid: 'abc %s %n'.
+	obj msgstr: '%n def %s'.
+	self assert: obj hasValidMsgstr.
+	obj := self newObj.
+	obj msgid: 'abc %n %n'.
+	obj msgstr: '%n1 def %n2'.
+	self assert: obj hasValidMsgstr.
+	obj := self newObj.
+	obj msgid: 'abc %s'.
+	obj msgstr: '%n def'.
+	self deny: obj hasValidMsgstr.
+	obj := self newObj.
+	obj msgid: 'abc %s %n'.
+	obj msgstr: '%n def %n'.
+	self deny: obj hasValidMsgstr
+]
+
+{ #category : #test }
 PoNormalEntryTest >> testIsEmptyMsgstr [
 
 	self deny: self newObj isEmptyMsgstr
@@ -206,18 +244,18 @@ PoNormalEntryTest >> testWriteOn [
 	obj writeOn: s.
 	self
 		assert: s contents
-		equals: 'msgid "nil"' , String crlf , 'msgstr "nil"' , String crlf.
+		equals: 'msgid "nil"' , String crlf , 'msgstr "nil"' , String crlf , String crlf.
 	obj msgid: 'abc'.
 	obj msgstr: 'def'.
 	s := WriteStream on: String new.
 	obj writeOn: s.
 	self
 		assert: s contents
-		equals: 'msgid "abc"' , String crlf , 'msgstr "def"' , String crlf.
+		equals: 'msgid "abc"' , String crlf , 'msgstr "def"' , String crlf , String crlf.
 	obj deleted: true.
 	s := WriteStream on: String new.
 	obj writeOn: s.
 	self
 		assert: s contents
-		equals: '#msgid "abc"' , String crlf , '#msgstr "def"' , String crlf
+		equals: '#msgid "abc"' , String crlf , '#msgstr "def"' , String crlf , String crlf
 ]

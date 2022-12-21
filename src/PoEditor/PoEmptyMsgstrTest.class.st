@@ -91,6 +91,66 @@ PoEmptyMsgstrTest >> testHasError [
 ]
 
 { #category : #test }
+PoEmptyMsgstrTest >> testHasValidMsgid [
+
+	| obj |
+	obj := self newObj.
+	obj msgid: ' '.
+	self deny: (obj hasValidMsgid).
+	obj := self newObj.
+	obj msgid: 'abc'.
+	self assert: (obj hasValidMsgid).
+	obj := self newObj.
+	obj msgid: 'abc def'.
+	self assert: (obj hasValidMsgid).
+	obj := self newObj.
+	obj msgid: 'abc %n'.
+	self assert: (obj hasValidMsgid).
+	obj := self newObj.
+	obj msgid: 'abc %n def %s'.
+	self assert: (obj hasValidMsgid).
+	obj := self newObj.
+	obj msgid: 'abc %n def %s2'.
+	self deny: (obj hasValidMsgid)
+]
+
+{ #category : #test }
+PoEmptyMsgstrTest >> testHasValidMsgstr [
+
+	self deny: self newObj hasValidMsgstr
+]
+
+{ #category : #test }
+PoEmptyMsgstrTest >> testHasValidMsgstr2 [
+
+	| obj |
+	obj := self newObj.
+	obj msgid: 'abc %n'.
+	self deny: (obj hasValidMsgstr: '').
+	obj := self newObj.
+	obj msgid: 'abc'.
+	self assert: (obj hasValidMsgstr: 'def').
+	obj := self newObj.
+	obj msgid: 'abc %n'.
+	self assert: (obj hasValidMsgstr: 'abc %n').
+	obj := self newObj.
+	obj msgid: 'abc %n'.
+	self assert: (obj hasValidMsgstr: '%n def').
+	obj := self newObj.
+	obj msgid: 'abc %s %n'.
+	self assert: (obj hasValidMsgstr: '%n def %s').
+	obj := self newObj.
+	obj msgid: 'abc %n %n'.
+	self assert: (obj hasValidMsgstr: '%n1 def %n2').
+	obj := self newObj.
+	obj msgid: 'abc %s'.
+	self deny: (obj hasValidMsgstr: '%n def').
+	obj := self newObj.
+	obj msgid: 'abc %s %n'.
+	self deny: (obj hasValidMsgstr: '%n def %n')
+]
+
+{ #category : #test }
 PoEmptyMsgstrTest >> testInitialize [
 
 	| obj |
@@ -141,6 +201,41 @@ PoEmptyMsgstrTest >> testMsgstrForEditing [
 	obj msgid: 'abc'.
 	r := obj msgstrForEditing.
 	self assert: r equals: 'abc'
+]
+
+{ #category : #test }
+PoEmptyMsgstrTest >> testParametersOf [
+
+	| obj |
+	obj := self newObj.
+	self assertCollection: (obj parametersOf: '') equals: #(  ).
+	self assertCollection: (obj parametersOf: 'abc %n') equals: #( '%n' ).
+	self
+		assertCollection: (obj parametersOf: 'abc %n    def %s')
+		equals: #( '%n' '%s' ).
+	self
+		assertCollection: (obj parametersOf: 'abc%n1def%s23gh')
+		equals: #( '%n1' '%s23' ).
+	self assertCollection: (obj parametersOf: 'abc% def%') equals: #(  )
+]
+
+{ #category : #test }
+PoEmptyMsgstrTest >> testParseCommandSpec [
+
+	| obj |
+	obj := self newObj.
+	self
+		assertCollection: (obj parseCommandSpec: 'abc %n')
+		equals: #( abc '%n' ).
+	self
+		assertCollection: (obj parseCommandSpec: 'abc %n    def %s')
+		equals: #( abc '%n' def '%s' ).
+	self
+		assertCollection: (obj parseCommandSpec: 'abc%n1def%s23gh')
+		equals: #( abc '%n1' def '%s23' gh ).
+	self
+		assertCollection: (obj parseCommandSpec: 'abc% def%')
+		equals: #( abc '%' def '%' )
 ]
 
 { #category : #test }
@@ -209,17 +304,17 @@ PoEmptyMsgstrTest >> testWriteOn [
 	obj writeOn: s.
 	self
 		assert: s contents
-		equals: 'msgid "nil"' , String crlf , 'msgstr ""' , String crlf.
+		equals: 'msgid "nil"' , String crlf , 'msgstr ""' , String crlf , String crlf.
 	obj msgid: 'abc'.
 	s := WriteStream on: String new.
 	obj writeOn: s.
 	self
 		assert: s contents
-		equals: 'msgid "abc"' , String crlf , 'msgstr ""' , String crlf.
+		equals: 'msgid "abc"' , String crlf , 'msgstr ""' , String crlf , String crlf.
 	obj deleted: true.
 	s := WriteStream on: String new.
 	obj writeOn: s.
 	self
 		assert: s contents
-		equals: '#msgid "abc"' , String crlf , '#msgstr ""' , String crlf
+		equals: '#msgid "abc"' , String crlf , '#msgstr ""' , String crlf , String crlf
 ]

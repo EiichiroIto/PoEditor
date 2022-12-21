@@ -6,9 +6,10 @@ Class {
 		'entryList',
 		'msgstrList',
 		'msgstrEditButton',
-		'msgstrRemoveButton',
 		'infoLabel',
-		'msgidAddButton'
+		'msgidAddButton',
+		'msgidRemoveButton',
+		'checkEntriesButton'
 	],
 	#category : #'PoEditor-Spec2'
 }
@@ -38,6 +39,8 @@ SpPoEditorFrame >> clearMsgstrList [
 SpPoEditorFrame >> connectPresenters [
 
 	msgidAddButton action: [ self addNewMsgid ].
+	checkEntriesButton action: [ application checkEntries ].
+	msgidRemoveButton action: [ self removeMsgid ].
 	entryList whenSelectionChangedDo: [ :mode | self entrySelected: mode ].
 	msgstrEditButton action: [ self editMsgstr ].
 	msgstrList whenSelectionChangedDo: [ :mode | self msgstrSelected: mode ]
@@ -58,17 +61,16 @@ SpPoEditorFrame >> defaultLayout [
 		  add: #menu withConstraints: [ :c | c height: toolbarHeight ];
 		  add: (SpPanedLayout newHorizontal
 				   add: (SpBoxLayout newVertical
-						    add: (SpPanedLayout newHorizontal
+						    add: (SpBoxLayout newHorizontal
 								     add: #msgidAddButton;
+								     add: #checkEntriesButton;
+								     add: #msgidRemoveButton;
 								     yourself)
 						    withConstraints: [ :c | c height: toolbarHeight ];
 						    add: #entryList;
 						    yourself);
 				   add: (SpBoxLayout newVertical
-						    add: (SpPanedLayout newHorizontal
-								     add: #msgstrEditButton;
-								     add: #msgstrRemoveButton;
-								     yourself)
+						    add: #msgstrEditButton
 						    withConstraints: [ :c | c height: toolbarHeight ];
 						    add: #msgstrList;
 						    yourself);
@@ -190,14 +192,27 @@ SpPoEditorFrame >> helpMenu [
 		  yourself
 ]
 
+{ #category : #accessing }
+SpPoEditorFrame >> infoLabel [
+
+	^ infoLabel
+]
+
+{ #category : #accessing }
+SpPoEditorFrame >> infoLabel: anObject [
+
+	infoLabel := anObject
+]
+
 { #category : #initialization }
 SpPoEditorFrame >> initializePresenters [
 
 	menu := self newMenuBar.
 	entryList := self newTable.
 	msgidAddButton := self newButton.
+	checkEntriesButton := self newButton.
+	msgidRemoveButton := self newButton.
 	msgstrEditButton := self newButton.
-	msgstrRemoveButton := self newButton.
 	msgstrList := self newList.
 	infoLabel := self newLabel.
 	self setupMenu.
@@ -206,9 +221,10 @@ SpPoEditorFrame >> initializePresenters [
 	self setupLabels.
 	self focusOrder
 		add: menu;
+		add: msgidAddButton;
+		add: msgidRemoveButton;
 		add: entryList;
 		add: msgstrEditButton;
-		add: msgstrRemoveButton;
 		add: msgstrList;
 		add: infoLabel
 ]
@@ -241,6 +257,30 @@ SpPoEditorFrame >> menu: anObject [
 ]
 
 { #category : #accessing }
+SpPoEditorFrame >> msgidAddButton [
+
+	^ msgidAddButton
+]
+
+{ #category : #accessing }
+SpPoEditorFrame >> msgidAddButton: anObject [
+
+	msgidAddButton := anObject
+]
+
+{ #category : #accessing }
+SpPoEditorFrame >> msgidRemoveButton [
+
+	^ msgidRemoveButton
+]
+
+{ #category : #accessing }
+SpPoEditorFrame >> msgidRemoveButton: anObject [
+
+	msgidRemoveButton := anObject
+]
+
+{ #category : #accessing }
 SpPoEditorFrame >> msgstrEditButton [
 
 	^ msgstrEditButton
@@ -264,18 +304,6 @@ SpPoEditorFrame >> msgstrList: anObject [
 	msgstrList := anObject
 ]
 
-{ #category : #accessing }
-SpPoEditorFrame >> msgstrRemoveButton [
-
-	^ msgstrRemoveButton
-]
-
-{ #category : #accessing }
-SpPoEditorFrame >> msgstrRemoveButton: anObject [
-
-	msgstrRemoveButton := anObject
-]
-
 { #category : #private }
 SpPoEditorFrame >> msgstrSelected: aSelectionMode [
 
@@ -287,6 +315,17 @@ SpPoEditorFrame >> msgstrSelected: aSelectionMode [
 	entry selectedIndex: (entry msgstrs indexOf: msgstr).
 	entryList refresh.
 	self showInfo
+]
+
+{ #category : #'button actions' }
+SpPoEditorFrame >> removeMsgid [
+
+	| entry |
+	entry := entryList selectedItem.
+	entry ifNil: [ ^ self ].
+	(self confirm: 'Remove this msgid?' localized , ' --- ' , entry msgid) 
+		ifFalse: [ ^ self ].
+	application removeEntry: entry
 ]
 
 { #category : #accessing }
@@ -302,14 +341,18 @@ SpPoEditorFrame >> setupButtons [
 		icon: (Smalltalk ui iconNamed: #add);
 		label: 'Add' localized;
 		help: 'Add new msgid' localized.
+	checkEntriesButton
+		icon: (Smalltalk ui iconNamed: #smallDebug);
+		label: 'Check' localized;
+		help: 'Check all entries' localized.
+	msgidRemoveButton
+		icon: (Smalltalk ui iconNamed: #remove);
+		label: 'Remove' localized;
+		help: 'Remove msgid' localized.
 	msgstrEditButton
 		icon: (Smalltalk ui iconNamed: #edit);
 		label: 'Edit' localized;
-		help: 'Edit msgstr' localized.
-	msgstrRemoveButton
-		icon: (Smalltalk ui iconNamed: #remove);
-		label: 'Remove' localized;
-		help: 'Remove msgstr' localized
+		help: 'Edit msgstr' localized
 ]
 
 { #category : #initialization }

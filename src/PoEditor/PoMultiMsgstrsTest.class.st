@@ -98,6 +98,20 @@ PoMultiMsgstrsTest >> testIsMultiMsgstrs [
 ]
 
 { #category : #test }
+PoMultiMsgstrsTest >> testIsValid [
+
+	| obj |
+	obj := self newObj.
+	self deny: obj isValid.
+	obj msgid: 'abc'.
+	obj msgstrs: #( 'def' 'ghi' ).
+	obj selectedIndex: 0.
+	self deny: obj isValid.
+	obj selectedIndex: 1.
+	self assert: obj isValid
+]
+
+{ #category : #test }
 PoMultiMsgstrsTest >> testMsgstr [
 
 	| obj r |
@@ -262,7 +276,7 @@ PoMultiMsgstrsTest >> testWriteOn [
 		assert: s contents
 		equals: 'msgid "abc"' , String crlf , 'msgstr "def"' , String crlf
 			, String crlf , 'msgid "abc"' , String crlf , 'msgstr "ghi"'
-			, String crlf.
+			, String crlf , String crlf.
 	obj deleted: true.
 	s := WriteStream on: String new.
 	obj writeOn: s.
@@ -271,5 +285,14 @@ PoMultiMsgstrsTest >> testWriteOn [
 		equals:
 			'#msgid "abc"' , String crlf , '#msgstr "def"' , String crlf
 			, String crlf , '#msgid "abc"' , String crlf , '#msgstr "ghi"'
-			, String crlf
+			, String crlf , String crlf.
+	obj deleted: false.
+	obj selectedIndex: 2.
+	s := WriteStream on: String new.
+	obj writeOn: s.
+	self
+		assert: s contents
+		equals:
+			'msgid "abc"' , String crlf , 'msgstr "ghi"'
+			, String crlf , String crlf
 ]

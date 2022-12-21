@@ -70,9 +70,9 @@ All rights reserved.
 ]
 
 { #category : #adding }
-PoEditor >> addEntry: aString [
+PoEditor >> addEntry: anEntry [
 
-	project addEntry: aString.
+	project addEntry: anEntry.
 	self updateProject
 ]
 
@@ -86,6 +86,13 @@ PoEditor >> appName [
 PoEditor >> appVersion [
 
 	^ '0.0.2'
+]
+
+{ #category : #api }
+PoEditor >> checkEntries [
+
+	project checkEntries.
+	self updateProject
 ]
 
 { #category : #private }
@@ -127,7 +134,7 @@ PoEditor >> initialize [
 
 	super initialize.
 	projectDirectory := extraDirectory := nil.
-	projectName := self defaultProjectName
+	projectName := ''
 ]
 
 { #category : #private }
@@ -157,7 +164,7 @@ PoEditor >> openNewProject [
 
 	self installProject: self newProject.
 	presenter selectEntryIndex: 0.
-	projectName := self defaultProjectName
+	projectName := ''
 ]
 
 { #category : #api }
@@ -187,7 +194,7 @@ PoEditor >> openTemplate [
 		        extensions: { 
 				        self class translationExtension.
 				        self class templateExtension }
-		        path: self projectDirectory.
+		        path: self extraDirectory.
 	file ifNil: [ ^ self ].
 	file isFile ifFalse: [ ^ self ].
 	extraDirectory := file parent.
@@ -256,6 +263,7 @@ PoEditor >> projectDirectory: anObject [
 { #category : #accessing }
 PoEditor >> projectName [
 
+	projectName isEmpty ifTrue: [ ^ self defaultProjectName ].
 	^ projectName
 ]
 
@@ -289,6 +297,13 @@ PoEditor >> promptForSavingTranslation [
 		  path: self extraDirectory / self projectName
 ]
 
+{ #category : #removing }
+PoEditor >> removeEntry: anEntry [
+
+	project removeEntry: anEntry.
+	self updateProject
+]
+
 { #category : #api }
 PoEditor >> saveProject [
 
@@ -298,7 +313,7 @@ PoEditor >> saveProject [
 	^ self saveProjectAs: file
 ]
 
-{ #category : #api }
+{ #category : #private }
 PoEditor >> saveProjectAs: aFileReference [
 
 	(self writeProjectAs: aFileReference) ifFalse: [ ^ false ].
@@ -311,7 +326,8 @@ PoEditor >> saveProjectAs: aFileReference [
 PoEditor >> saveProjectNoDialog [
 
 	| file |
-	projectDirectory ifNil: [ ^ self saveProject ].
+	(projectDirectory isNil or: [ projectName isEmpty ]) ifTrue: [ 
+		^ self saveProject ].
 	file := self projectPath withExtension: self class extension.
 	^ self saveProjectAs: file
 ]
@@ -361,9 +377,7 @@ PoEditor >> writeTranslationAs: aFileReference [
 	list := project entryList sorted: [ :a :b | 
 		        self compareEntry: a and: b ].
 	aFileReference writeStream in: [ :stream | 
-		list
-			do: [ :each | each writeOn: stream ]
-			separatedBy: [ stream nextPutAll: String crlf ].
+		list do: [ :each | each writeOn: stream ].
 		stream close ].
 	^ true
 ]

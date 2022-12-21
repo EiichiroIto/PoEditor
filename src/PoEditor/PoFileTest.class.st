@@ -30,24 +30,6 @@ PoFileTest >> testAddMsgIdMsgStr [
 ]
 
 { #category : #test }
-PoFileTest >> testEmptyMsgids [
-
-	| obj r |
-	obj := self newObj.
-	obj addMsgId: 'abc' msgStr: 'def'.
-	obj addMsgId: 'ghi' msgStr: ''.
-	obj addMsgId: 'jkl' msgStr: 'mno'.
-	r := obj emptyMsgids.
-	self assert: r size equals: 1.
-	self assert: r first msgid equals: 'ghi'.
-	obj addMsgId: 'pqr' msgStr: ''.
-	r := obj emptyMsgids.
-	self assert: r size equals: 2.
-	self assert: r first msgid equals: 'ghi'.
-	self assert: r second msgid equals: 'pqr'
-]
-
-{ #category : #test }
 PoFileTest >> testEntries [
 
 	| obj d |

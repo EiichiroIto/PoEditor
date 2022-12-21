@@ -124,7 +124,7 @@ PoTranslator >> fontFromString: aString [
 		ifFalse: [ ^ nil ].
 	ret := aString splitOn: $:.
 	family := ret first trimBoth.
-	point := ret second asNumberNoError max: 5.
+	point := ret second asNumber max: 5.
 	^ LogicalFont familyName: family pointSize: point
 ]
 

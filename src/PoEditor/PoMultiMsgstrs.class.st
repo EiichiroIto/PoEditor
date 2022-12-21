@@ -52,6 +52,13 @@ PoMultiMsgstrs >> hasMsgstr: aString [
 	^ msgstrs includes: aString
 ]
 
+{ #category : #accessing }
+PoMultiMsgstrs >> hasValidMsgstr [
+
+	selectedIndex = 0 ifTrue: [ ^ false ].
+	^ self hasValidMsgstr: (msgstrs at: selectedIndex)
+]
+
 { #category : #initialization }
 PoMultiMsgstrs >> initialize [
 
@@ -154,21 +161,30 @@ PoMultiMsgstrs >> withMsgstr: aString [
 ]
 
 { #category : #writing }
+PoMultiMsgstrs >> writeMsgstr: aString deleted: aBoolean on: aStream [
+
+	aBoolean ifTrue: [ aStream nextPut: $# ].
+	aStream
+		nextPutAll: 'msgid "';
+		nextPutAll: msgid asString;
+		nextPutAll: '"';
+		nextPutAll: String crlf.
+	aBoolean ifTrue: [ aStream nextPut: $# ].
+	aStream
+		nextPutAll: 'msgstr "';
+		nextPutAll: aString asString;
+		nextPutAll: '"';
+		nextPutAll: String crlf;
+		nextPutAll: String crlf
+]
+
+{ #category : #writing }
 PoMultiMsgstrs >> writeOn: aStream [
 
-	msgstrs
-		do: [ :each | 
-			(hasError or: [ deleted ]) ifTrue: [ aStream nextPut: $# ].
-			aStream
-				nextPutAll: 'msgid "';
-				nextPutAll: msgid asString;
-				nextPutAll: '"';
-				nextPutAll: String crlf.
-			(hasError or: [ deleted ]) ifTrue: [ aStream nextPut: $# ].
-			aStream
-				nextPutAll: 'msgstr "';
-				nextPutAll: each asString;
-				nextPutAll: '"';
-				nextPutAll: String crlf ]
-		separatedBy: [ aStream nextPutAll: String crlf ]
+	msgstrs withIndexDo: [ :each :index | 
+		(selectedIndex = 0 or: [ selectedIndex = index ]) ifTrue: [ 
+			self
+				writeMsgstr: each
+				deleted: (hasError or: [ deleted ])
+				on: aStream ] ]
 ]

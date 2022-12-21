@@ -39,6 +39,12 @@ PoNormalEntry >> adoptToNormal: anEntry [
 ]
 
 { #category : #testing }
+PoNormalEntry >> hasValidMsgstr [
+
+	^ self hasValidMsgstr: msgstr
+]
+
+{ #category : #testing }
 PoNormalEntry >> isEmptyMsgstr [
 	^ false
 ]
@@ -102,5 +108,6 @@ PoNormalEntry >> writeOn: aStream [
 		nextPutAll: 'msgstr "';
 		nextPutAll: msgstr asString;
 		nextPutAll: '"';
+		nextPutAll: String crlf;
 		nextPutAll: String crlf
 ]

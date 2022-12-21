@@ -46,6 +46,15 @@ PoProject >> addTranslation: anAbstractFile [
 ]
 
 { #category : #accessing }
+PoProject >> checkEntries [
+
+	entries do: [ :each | each hasError: false ].
+	entries do: [ :each | 
+		(each hasValidMsgid and: [ each hasValidMsgstr ]) ifFalse: [ 
+			each hasError: true ] ]
+]
+
+{ #category : #accessing }
 PoProject >> entries [
 
 	^ entries
@@ -95,6 +104,12 @@ PoProject >> printOn: aStream [
 		nextPutAll: '(entries=';
 		nextPutAll: entries size asString;
 		nextPutAll: ')'
+]
+
+{ #category : #removing }
+PoProject >> removeEntry: anEntry [
+
+	entries removeKey: anEntry msgid
 ]
 
 { #category : #accessing }

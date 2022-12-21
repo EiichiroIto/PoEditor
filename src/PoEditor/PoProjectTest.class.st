@@ -123,6 +123,49 @@ PoProjectTest >> testAddTemplate3 [
 ]
 
 { #category : #test }
+PoProjectTest >> testAddTranslatedEntry [
+
+	| prj a b c d r |
+	prj := self newProject.
+	a := PoAbstractEntry msgid: 'abc'.
+	b := PoAbstractEntry msgid: 'def'.
+	prj addEntry: a.
+	prj addEntry: b.
+	c := PoAbstractEntry msgid: 'abc' msgstr: 'ghi'.
+	prj addTranslatedEntry: c.
+	r := prj entryAt: 'abc'.
+	self assert: r msgstr equals: 'ghi'.
+	r deleted: true.
+	c := PoAbstractEntry msgid: 'abc' msgstr: 'pqr'.
+	prj addTranslatedEntry: c.
+	self assert: r msgstr equals: 'ghi'.
+	d := PoAbstractEntry msgid: 'jkl' msgstr: 'mno'.
+	prj addTranslatedEntry: c.
+	self deny: (prj hasMsgid: 'jkl')
+]
+
+{ #category : #test }
+PoProjectTest >> testAddTranslation [
+
+	| prj file1 file2 r |
+	prj := self newProject.
+	file1 := self newFile
+		         addMsgId: 'abc' msgStr: 'def';
+		         addMsgId: 'ghi' msgStr: 'jkl';
+		         yourself.
+	prj addTemplate: file1.
+	self assert: (prj entryAt: 'abc') msgstr equals: 'def'.
+	self assert: (prj entryAt: 'ghi') msgstr equals: 'jkl'.
+	file2 := self newFile
+		         addMsgId: 'abc' msgStr: 'mno';
+		         yourself.
+	prj addTranslation: file2.
+	r := prj entryAt: 'abc'.
+	self assertCollection: r msgstrs equals: #( 'def' 'mno' ).
+	self assert: (prj entryAt: 'ghi') msgstr equals: 'jkl'
+]
+
+{ #category : #test }
 PoProjectTest >> testEntries [
 
 	| obj x |
@@ -132,6 +175,48 @@ PoProjectTest >> testEntries [
 	x := Dictionary new.
 	obj entries: x.
 	self assert: obj entries identicalTo: x
+]
+
+{ #category : #test }
+PoProjectTest >> testEntryAt [
+
+	| prj obj |
+	prj := self newProject.
+	self should: [ prj entryAt: 'abc' ] raise: Error.
+	obj := PoAbstractEntry msgid: 'abc'.
+	prj addEntry: obj.
+	self assert: (prj entryAt: 'abc') identicalTo: obj
+]
+
+{ #category : #test }
+PoProjectTest >> testEntryList [
+
+	| prj a b |
+	prj := self newProject.
+	self assert: prj entryList isEmpty.
+	a := PoAbstractEntry msgid: 'abc' msgstr: 'def'.
+	b := PoAbstractEntry msgid: 'ghi' msgstr: 'jkl'.
+	prj addEntry: a.
+	prj addEntry: b.
+	self assert: prj entryList isArray.
+	self assert: prj entryList size equals: 2.
+	self assert: prj entryList first identicalTo: a.
+	self assert: prj entryList second identicalTo: b
+]
+
+{ #category : #test }
+PoProjectTest >> testHasMsgid [
+
+	| prj a b |
+	prj := self newProject.
+	self assert: prj entryList isEmpty.
+	a := PoAbstractEntry msgid: 'abc' msgstr: 'def'.
+	b := PoAbstractEntry msgid: 'ghi' msgstr: 'jkl'.
+	prj addEntry: a.
+	prj addEntry: b.
+	self assert: (prj hasMsgid: 'abc').
+	self assert: (prj hasMsgid: 'ghi').
+	self deny: (prj hasMsgid: 'def')
 ]
 
 { #category : #test }
@@ -150,6 +235,55 @@ PoProjectTest >> testInvalids [
 	obj := self newProject.
 	self assert: obj invalids isArray.
 	self assert: obj invalids isEmpty
+]
+
+{ #category : #test }
+PoProjectTest >> testPrintOn [
+
+	| prj s |
+	prj := self newProject.
+	s := WriteStream on: String new.
+	prj printOn: s.
+	self assert: s contents equals: 'PoProject(entries=0)'.
+	prj addEntry: (PoAbstractEntry msgid: 'abc' msgstr: 'def').
+	prj addEntry: (PoAbstractEntry msgid: 'ghi' msgstr: 'jkl').
+	s := WriteStream on: String new.
+	prj printOn: s.
+	self assert: s contents equals: 'PoProject(entries=2)'
+]
+
+{ #category : #test }
+PoProjectTest >> testRemoveEntry [
+
+	| prj a b |
+	prj := self newProject.
+	self assert: prj entryList isEmpty.
+	a := PoAbstractEntry msgid: 'abc' msgstr: 'def'.
+	b := PoAbstractEntry msgid: 'ghi' msgstr: 'jkl'.
+	prj addEntry: a.
+	prj addEntry: b.
+	self assert: prj entryList size equals: 2.
+	prj removeEntry: a.
+	self assert: prj entryList size equals: 1.
+	self assert: prj entryList first identicalTo: b
+]
+
+{ #category : #test }
+PoProjectTest >> testUpdateEntry [
+
+	| prj a b c |
+	prj := self newProject.
+	self assert: prj entryList isEmpty.
+	a := PoAbstractEntry msgid: 'abc' msgstr: 'def'.
+	b := PoAbstractEntry msgid: 'ghi' msgstr: 'jkl'.
+	prj addEntry: a.
+	prj addEntry: b.
+	self assert: prj entryList size equals: 2.
+	c := PoAbstractEntry msgid: 'abc'.
+	prj updateEntry: c.
+	self assert: prj entryList size equals: 2.
+	self assert: prj entryList first identicalTo: c.
+	self assert: prj entryList second identicalTo: b
 ]
 
 { #category : #test }

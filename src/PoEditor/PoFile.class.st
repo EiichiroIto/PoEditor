@@ -16,12 +16,6 @@ PoFile >> addMsgId: aString1 msgStr: aString2 [
 			 ifFalse: [ PoAbstractEntry msgid: aString1 msgstr: aString2 ])
 ]
 
-{ #category : #api }
-PoFile >> emptyMsgids [
-
-	^ entries select: [ :each | each isEmptyMsgstr ]
-]
-
 { #category : #accessing }
 PoFile >> entries [
 

@@ -14,12 +14,6 @@ PoTemplate >> addMsgId: aString1 msgStr: aString2 [
 	entries add: (PoAbstractEntry msgid: aString1)
 ]
 
-{ #category : #api }
-PoTemplate >> emptyMsgids [
-
-	^ entries
-]
-
 { #category : #accessing }
 PoTemplate >> entries [
 
